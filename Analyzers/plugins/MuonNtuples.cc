@@ -52,7 +52,7 @@
 #include "DataFormats/TrajectorySeed/interface/SeedCandidate.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+//#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -305,9 +305,9 @@ void MuonNtuples::beginJob() {
 void MuonNtuples::endJob() {}
 
 void MuonNtuples::beginRun(const edm::Run & run, const edm::EventSetup & eventSetup) {
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  eventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", theHitsAssociator);
-  theAssociatorByHits = (const TrackAssociatorByHits*)theHitsAssociator.product();
+  //edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  //eventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", theHitsAssociator);
+  //theAssociatorByHits = (const TrackAssociatorByHits*)theHitsAssociator.product();
 }
 
 void MuonNtuples::endRun  (const edm::Run & run, const edm::EventSetup & eventSetup) {}
@@ -354,7 +354,7 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
           event_.instLumi = lumiScaler->begin()->instantLumi();
       } 
     }
- // }
+    //}
 
 
   // Fill PU info
@@ -540,7 +540,7 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
    catch(...){}
 
 
-  } else { // for MC GEN-SIM-RAW
+  if(!event.isRealData()) { // for MC GEN-SIM-RAW
 
   //Track Outside-In
     edm::Handle<reco::TrackCollection> trackOI;
@@ -560,14 +560,14 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
     }
 
     // SimTracks
-    edm::Handle<TrackingParticleCollection> simTracks;
-    bool simTrackFlag = false;
-    if(event.getByToken(simTrackToken_, simTracks))
-      simTrackFlag = true;
+    //edm::Handle<TrackingParticleCollection> simTracks;
+    //bool simTrackFlag = false;
+    //if(event.getByToken(simTrackToken_, simTracks))
+    //  simTrackFlag = true;
 
-    if (trackOIflag & simTrackFlag){
-         reco::RecoToSimCollection recoToSim =  theAssociatorByHits->associateRecoToSim(recCollection, simCollection, &event);
-    }
+    //    if (trackOIflag & simTrackFlag){
+    //     reco::RecoToSimCollection recoToSim =  theAssociatorByHits->associateRecoToSim(recCollection, simCollection, &event);
+    //}
 
 
   }
