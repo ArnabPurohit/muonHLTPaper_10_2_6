@@ -48,6 +48,15 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+
+#include "DataFormats/TrajectorySeed/interface/SeedCandidate.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+
 class MuonServiceProxy;
 
 enum HLTCollectionType { 
@@ -140,10 +149,14 @@ class MuonNtuples : public edm::EDAnalyzer {
 //*****************************INCLUDED*****************************//
   edm::InputTag theTrackOITag_;
   edm::EDGetTokenT<reco::TrackCollection> theTrackOIToken_;
+  edm::InputTag theTrajOITag_;
+  edm::EDGetTokenT<std::vector<Trajectory>> theTrajOIToken_;
   edm::InputTag theTrackIOL2Tag_;
   edm::EDGetTokenT<reco::TrackCollection> theTrackIOL2Token_;
   edm::InputTag theTrackIOL1Tag_;
   edm::EDGetTokenT<reco::TrackCollection> theTrackIOL1Token_;
+  edm::InputTag simTrackTag_;
+  edm::EDGetTokenT<std::vector<TrackingParticle>> simTrackToken_;
 //******************************************************************//
 
 
@@ -197,6 +210,7 @@ class MuonNtuples : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
 
 
+  //edm::EDGetTokenT<std::vector<SeedCandidate>>  theSeedLabel;
 
 
   bool doOffline_;
@@ -219,10 +233,15 @@ MuonNtuples::MuonNtuples(const edm::ParameterSet& cfg):
 //********************************************INCLUDED********************************************//
   theTrackOITag_          (cfg.getUntrackedParameter<edm::InputTag>("theTrackOI")),
     theTrackOIToken_        (consumes<reco::TrackCollection>(theTrackOITag_)),
+  theTrajOITag_          (cfg.getUntrackedParameter<edm::InputTag>("theTrajOI")),
+   theTrajOIToken_        (consumes<std::vector<Trajectory>>(theTrajOITag_)),
   theTrackIOL2Tag_          (cfg.getUntrackedParameter<edm::InputTag>("theTrackIOL2")),
     theTrackIOL2Token_        (consumes<reco::TrackCollection>(theTrackIOL2Tag_)),
   theTrackIOL1Tag_          (cfg.getUntrackedParameter<edm::InputTag>("theTrackIOL1")),
     theTrackIOL1Token_        (consumes<reco::TrackCollection>(theTrackIOL1Tag_)),
+
+  simTrackTag_          (cfg.getUntrackedParameter<edm::InputTag>("simTracks")),
+   simTrackToken_        (consumes<std::vector<TrackingParticle>>(simTrackTag_)),
 //************************************************************************************************//
 
 
@@ -271,6 +290,7 @@ MuonNtuples::MuonNtuples(const edm::ParameterSet& cfg):
   theService = new MuonServiceProxy(cfg.getParameter<edm::ParameterSet>("ServiceParameters"));
   //usesResource("TFileService");
 
+  //theSeedLabel = consumes<std::vector<SeedCandidate>>(cfg.getParameter<edm::InputTag>("seedsForOIFromL2"));
 
 }
 
@@ -284,7 +304,11 @@ void MuonNtuples::beginJob() {
 
 void MuonNtuples::endJob() {}
 
-void MuonNtuples::beginRun(const edm::Run & run, const edm::EventSetup & eventSetup) {}
+void MuonNtuples::beginRun(const edm::Run & run, const edm::EventSetup & eventSetup) {
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  eventSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits", theHitsAssociator);
+  theAssociatorByHits = (const TrackAssociatorByHits*)theHitsAssociator.product();
+}
 
 void MuonNtuples::endRun  (const edm::Run & run, const edm::EventSetup & eventSetup) {}
  
@@ -362,7 +386,24 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
   
   if (event.getByToken(theTrackOIToken_, trackOI))
     fillHltTrack(trackOI, event, TrackCollectionType::ihltTrackOI);
+
+  //Trajectory outside-in
+    edm::Handle<std::vector<Trajectory>> trajOI;
+    event.getByToken(theTrajOIToken_, trajOI);
+
+  for(std::vector<Trajectory>::const_iterator t=trajOI->begin(); t!=trajOI->end(); t++){
+  std::cout << t->foundHits() << std::endl;
+  }
   
+  // Seeds from TSG for OI
+  //edm::Handle<std::vector<SeedCandidate>> collseed;
+  //event.getByToken(theSeedLabel, collseed);
+
+  //  std::cout <<  "Number of seeds = " << (*collseed).size() << std::endl;
+  //for (unsigned int j(0); j<(*collseed).size(); ++j){
+  //  std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
+  //}
+
   //Track Inside Out from L2
   edm::Handle<reco::TrackCollection> trackIOL2;
   if (event.getByToken(theTrackIOL2Token_, trackIOL2))
@@ -499,7 +540,37 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
    catch(...){}
 
 
+  } else { // for MC GEN-SIM-RAW
 
+  //Track Outside-In
+    edm::Handle<reco::TrackCollection> trackOI;
+    bool trackOIflag = false;
+    if (event.getByToken(theTrackOIToken_, trackOI))
+      trackOIflag = true;
+
+    if (trackOIflag)
+      fillHltTrack(trackOI, event, TrackCollectionType::ihltTrackOI);
+
+  //Trajectory outside-in
+    edm::Handle<std::vector<Trajectory>> trajOI;
+    if(event.getByToken(theTrajOIToken_, trajOI)){
+      for(std::vector<Trajectory>::const_iterator t=trajOI->begin(); t!=trajOI->end(); t++){
+	std::cout << t->foundHits() << std::endl;
+      }
+    }
+
+    // SimTracks
+    edm::Handle<TrackingParticleCollection> simTracks;
+    bool simTrackFlag = false;
+    if(event.getByToken(simTrackToken_, simTracks))
+      simTrackFlag = true;
+
+    if (trackOIflag & simTrackFlag){
+         reco::RecoToSimCollection recoToSim =  theAssociatorByHits->associateRecoToSim(recCollection, simCollection, &event);
+    }
+
+
+  }
 
   // endEvent();
   tree_["muonTree"] -> Fill();
@@ -811,7 +882,7 @@ void MuonNtuples::fillHltMuons(const edm::Handle<reco::MuonCollection> & l3cands
                                )
 {
   for(std::vector<reco::Muon>::const_iterator mu1=l3cands->begin(); mu1!=l3cands->end(); ++mu1) 
-  { 
+  {
 
 
 
