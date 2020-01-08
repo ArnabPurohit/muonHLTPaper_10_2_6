@@ -326,7 +326,7 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
 
 
   // Fill vertex info
-  //if (doOffline_){
+  if (doOffline_){
     edm::Handle<reco::VertexCollection> vertices; 
     event.getByToken(offlinePVToken_, vertices);
     for(reco::VertexCollection::const_iterator it = vertices->begin(); it != vertices->end(); ++it) {
@@ -539,6 +539,7 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
      }
    catch(...){}
 
+  } // close if(doOffline)
 
   if(!event.isRealData()) { // for MC GEN-SIM-RAW
 

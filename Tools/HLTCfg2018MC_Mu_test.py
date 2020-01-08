@@ -12333,13 +12333,15 @@ process.HLT_OldMu100_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sSin
 process.HLT_TkMu100_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sSingleMu22or25 + process.hltPreTkMu100 + process.hltL1fL1sMu22or25L1Filtered0 + process.HLTMuonLocalRecoSequence + process.HLTHighPt50TrackerMuonSequence + process.hltL3fL1sMu25f0TkFiltered100Q + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 
+process.load("hlt_validation_cff")
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_IsoMu24_v13, process.HLT_IsoMu27_v16, process.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v5, process.HLT_Mu50_v13, process.HLT_OldMu100_v3, process.HLT_TkMu100_v2, process.HLTriggerFinalPath ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_IsoMu24_v13, process.HLT_IsoMu27_v16, process.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v5, process.HLT_Mu50_v13, process.HLT_OldMu100_v3, process.HLT_TkMu100_v2, process.HLTriggerFinalPath, process.validation ))
 
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root',
+#        '/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root', 
+        '/store/mc/RunIIAutumn18DR/DYJetsToMuMu_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-DIGI-RAW/PUPoissonAve32_102X_upgrade2018_realistic_v15-v1/70000/0053E36B-36A3-144E-966E-8548DC9EAB1B.root',
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'
@@ -12443,6 +12445,9 @@ process.source = cms.Source( "PoolSource",
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
+process.MessageLogger = cms.Service("MessageLogger",
+       debugModules = cms.untracked.vstring('MultiTrackValidator')
+)
 
 process.muonNtuples = cms.EDAnalyzer("MuonNtuples",
                    MuonServiceProxy,
