@@ -67,29 +67,31 @@ process.postProcessorHLTtrackingSequence = cms.Sequence(process.postProcessorHLT
 from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import *
 process.trackingEffFromHitPatternHLT = trackingEffFromHitPattern.clone()
 process.trackingEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
-    "HLT/Tracking/pixelTracks/HitEffFromHitPattern",
-    "HLT/Tracking/iter0/HitEffFromHitPattern",
-    "HLT/Tracking/iter0HP/HitEffFromHitPattern",
-    "HLT/Tracking/iter1/HitEffFromHitPattern",
-    "HLT/Tracking/iter1HP/HitEffFromHitPattern",
-    "HLT/Tracking/iter2/HitEffFromHitPattern",
-    "HLT/Tracking/iter2HP/HitEffFromHitPattern",
-    "HLT/Tracking/iter2Merged/HitEffFromHitPattern",
-    "HLT/Tracking/iter3HP/HitEffFromHitPattern",
-    "HLT/Tracking/iter3Merged/HitEffFromHitPattern",
-    "HLT/Tracking/iter4/HitEffFromHitPattern",
-    "HLT/Tracking/iter4HP/HitEffFromHitPattern",
-    "HLT/Tracking/iter4Merged/HitEffFromHitPattern"
-)
+    "HLT/Tracking/hltIterL3OIMuonTrackSelectionHighPurity/HitEffFromHitPattern"
+#    "HLT/Tracking/pixelTracks/HitEffFromHitPattern",
+#    "HLT/Tracking/iter0/HitEffFromHitPattern",
+#    "HLT/Tracking/iter0HP/HitEffFromHitPattern",
+#    "HLT/Tracking/iter1/HitEffFromHitPattern",
+#    "HLT/Tracking/iter1HP/HitEffFromHitPattern",
+#    "HLT/Tracking/iter2/HitEffFromHitPattern",
+#    "HLT/Tracking/iter2HP/HitEffFromHitPattern",
+#    "HLT/Tracking/iter2Merged/HitEffFromHitPattern",
+#    "HLT/Tracking/iter3HP/HitEffFromHitPattern",
+#    "HLT/Tracking/iter3Merged/HitEffFromHitPattern",
+#    "HLT/Tracking/iter4/HitEffFromHitPattern",
+#    "HLT/Tracking/iter4HP/HitEffFromHitPattern",
+#    "HLT/Tracking/iter4Merged/HitEffFromHitPattern",
+    )
+
 # Remove the HLT harvesting from the validation harvesting step                                                                                              
 process.validationHarvesting = cms.Path(process.postValidation)
 process.trackingOnlyHarvesting = cms.Path(process.postProcessorHLTtrackingSequence)
 process.trackingEffFromHitHarvesting = cms.Path(process.trackingEffFromHitPatternHLT)
-process.vertexingHarvesting = cms.Path(process.postProcessorHLTvertexing)
+#process.vertexingHarvesting = cms.Path(process.postProcessorHLTvertexing)
 process.schedule = cms.Schedule(process.edmtome_step,
                                 process.trackingOnlyHarvesting,
                                 process.trackingEffFromHitHarvesting,
-                                process.vertexingHarvesting,
+ #                               process.vertexingHarvesting,
                                 process.dqmsave_step)
 
 files = cms.untracked.vstring() 
@@ -97,3 +99,7 @@ files = [
 'file:DQMIO.root'
 ] 
 process.source.fileNames = files 
+
+process.MessageLogger = cms.Service("MessageLogger",
+       debugModules = cms.untracked.vstring('DQMGenericClient')
+)
