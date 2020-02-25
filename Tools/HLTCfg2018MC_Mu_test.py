@@ -6101,7 +6101,7 @@ process.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFro
       clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
       MaxSequentialBad = cms.uint32( 1 )
     ),
-    onDemand = cms.bool( True )
+    onDemand = cms.bool( False )
 )
 process.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerEventProducer",
     inactivePixelDetectorLabels = cms.VInputTag( 'hltSiPixelDigis' ),
@@ -12398,7 +12398,8 @@ _customInfo['inputFiles'][True]  = "file:RelVal_Raw_GRun_DATA.root"
 _customInfo['inputFiles'][False] = "file:RelVal_Raw_GRun_MC.root"
 _customInfo['maxEvents' ]=  100
 _customInfo['globalTag' ]= "102X_upgrade2018_realistic_v15"
-_customInfo['inputFile' ]=  ['/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root']
+#_customInfo['inputFile' ]=  ['/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root']
+_customInfo['inputFile' ]=['/store/mc/RunIIAutumn18DR/DYJetsToMuMu_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-DIGI-RAW/PUPoissonAve32_102X_upgrade2018_realistic_v15-v1/70000/0053E36B-36A3-144E-966E-8548DC9EAB1B.root']
 _customInfo['realData'  ]=  False
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,"GRun",_customInfo)
@@ -12417,7 +12418,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 200
 
 process.source = cms.Source( "PoolSource",
 
-fileNames = cms.untracked.vstring('/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root'),
+#fileNames = cms.untracked.vstring('/store/mc/RunIIAutumn18DR/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-RAW/FlatPU28to62NZS_102X_upgrade2018_realistic_v15-v1/00000/EF00BD86-2DB3-3645-8521-A3F29E89440D.root'),
+fileNames = cms.untracked.vstring('/store/mc/RunIIAutumn18DR/DYJetsToMuMu_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM-DIGI-RAW/PUPoissonAve32_102X_upgrade2018_realistic_v15-v1/70000/0053E36B-36A3-144E-966E-8548DC9EAB1B.root'),
 # fileNames = cms.untracked.vstring('/store/mc/RunIIFall18wmLHEGS/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/GEN-SIM/102X_upgrade2018_realistic_v11-v1/110002/DC181D03-3D36-834E-BFC1-B43A9B0D8D4D.root'),
                              
 #  secondaryFileNames=cms.untracked.vstring(
@@ -12495,7 +12497,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False),
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 
-
+print process.dumpPython()
 
 
 
