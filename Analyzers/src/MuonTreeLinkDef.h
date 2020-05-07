@@ -9,6 +9,7 @@
 #pragma link C++ class MuonEvent+;
 #pragma link C++ class GenParticleCand+;
 //*******************INCLUDED******************//
+#pragma link C++ class SeedCand+;
 #pragma link C++ class HltTrackCand+;
 //*********************************************//
 #pragma link C++ class MuonCand+;
@@ -22,6 +23,7 @@
 #pragma link C++ class std::vector<L1MuonCand>+;
 #pragma link C++ class std::vector<HLTObjCand>+;
 //*******************INCLUDED******************//
+#pragma link C++ class std::vector<SeedCand>+;
 #pragma link C++ class std::vector<HltTrackCand>+;
 //*********************************************//
 #endif

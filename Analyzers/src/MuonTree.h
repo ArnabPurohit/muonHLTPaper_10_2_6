@@ -27,6 +27,22 @@ public:
 
 
 //INCLUDED2//
+
+class SeedCand {
+ public:
+  std::string layerId;
+  Int_t layerNum;
+  std::string seedType;
+  Float_t pt;
+  Float_t eta;
+  Float_t phi;
+
+  SeedCand(){};
+  virtual ~SeedCand(){};
+
+  ClassDef(SeedCand,1)
+    };
+
 class HltTrackCand {
  public:
 
@@ -242,8 +258,8 @@ public:
   std::vector <L1MuonCand>      L1muons;      
   std::vector <HLTMuonCand>     L2muonsTSG;
 
-
 //*******************INCLUDED*******************//
+  std::vector <SeedCand>        seeds;
   std::vector <HltTrackCand>    hltTrackOI;
   std::vector <HltTrackCand>    hltTrackIOL1;
   std::vector <HltTrackCand>    hltTrackIOL2;

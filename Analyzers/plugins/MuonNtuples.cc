@@ -114,6 +114,9 @@ class MuonNtuples : public edm::EDAnalyzer {
                  const edm::Event   & 
 		 );
   //*****************************INCLUDED*****************************//
+  void fillSeeds(const edm::Handle<std::vector<SeedCandidate>>  &,
+                    const edm::Event    &
+                    );
   void fillHltTrack(const edm::Handle<reco::TrackCollection>  &,
 		    const edm::Event    &,
                     TrackCollectionType type
@@ -210,7 +213,7 @@ class MuonNtuples : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
 
 
-  //edm::EDGetTokenT<std::vector<SeedCandidate>>  theSeedLabel;
+  edm::EDGetTokenT<std::vector<SeedCandidate>>  theSeedLabel;
 
 
   bool doOffline_;
@@ -290,7 +293,7 @@ MuonNtuples::MuonNtuples(const edm::ParameterSet& cfg):
   theService = new MuonServiceProxy(cfg.getParameter<edm::ParameterSet>("ServiceParameters"));
   //usesResource("TFileService");
 
-  //theSeedLabel = consumes<std::vector<SeedCandidate>>(cfg.getParameter<edm::InputTag>("seedsForOIFromL2"));
+  theSeedLabel = consumes<std::vector<SeedCandidate>>(cfg.getParameter<edm::InputTag>("seedsForOIFromL2"));
 
 }
 
@@ -323,7 +326,6 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
   event_.runNumber             = event.id().run();
   event_.luminosityBlockNumber = event.id().luminosityBlock();
   event_.eventNumber           = event.id().event();
-
 
   // Fill vertex info
   if (doOffline_){
@@ -390,19 +392,10 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
   //Trajectory outside-in
     edm::Handle<std::vector<Trajectory>> trajOI;
     event.getByToken(theTrajOIToken_, trajOI);
-
-  for(std::vector<Trajectory>::const_iterator t=trajOI->begin(); t!=trajOI->end(); t++){
-  std::cout << t->foundHits() << std::endl;
-  }
   
   // Seeds from TSG for OI
-  //edm::Handle<std::vector<SeedCandidate>> collseed;
-  //event.getByToken(theSeedLabel, collseed);
-
-  //  std::cout <<  "Number of seeds = " << (*collseed).size() << std::endl;
-  //for (unsigned int j(0); j<(*collseed).size(); ++j){
-  //  std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
-  //}
+  edm::Handle<std::vector<SeedCandidate>> collseed;
+  event.getByToken(theSeedLabel, collseed);
 
   //Track Inside Out from L2
   edm::Handle<reco::TrackCollection> trackIOL2;
@@ -556,8 +549,18 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
     edm::Handle<std::vector<Trajectory>> trajOI;
     if(event.getByToken(theTrajOIToken_, trajOI)){
       for(std::vector<Trajectory>::const_iterator t=trajOI->begin(); t!=trajOI->end(); t++){
-	std::cout << t->foundHits() << std::endl;
+	std::cout <<"Found hits: "<< t->foundHits() << std::endl;
       }
+    }
+
+    // Seeds from TSG for OI
+    edm::Handle<std::vector<SeedCandidate>> collseed;
+    if(event.getByToken(theSeedLabel, collseed)){
+      fillSeeds(collseed, event);
+      //   std::cout <<  "Number of seeds = " << (*collseed).size() << std::endl;
+      //for (unsigned int j(0); j<(*collseed).size(); ++j){
+      //	std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
+      // }
     }
 
     // SimTracks
@@ -698,6 +701,24 @@ void MuonNtuples::fillHlt(const edm::Handle<edm::TriggerResults>   & triggerResu
 //**********************************************INCLUDED*********************************************//
 //Incluir hltTrack copiar collection dentro de muons en innertrack
 
+void MuonNtuples::fillSeeds(const edm::Handle<std::vector<SeedCandidate>>  & collseed ,
+                               const edm::Event                          & tevent )
+{
+
+  //  std::cout <<  "Number of seeds = " << (*collseed).size() << std::endl;
+  for (unsigned int j(0); j<(*collseed).size(); ++j){
+    SeedCand Seed;
+    Seed.layerId   = (*collseed)[j].layerId;
+    Seed.layerNum  = (*collseed)[j].layerNum;
+    Seed.seedType  = (*collseed)[j].seedType;
+    Seed.pt        = (*collseed)[j].pt;
+    Seed.eta       = (*collseed)[j].eta;
+    Seed.phi       = (*collseed)[j].phi;
+    event_.seeds.push_back(Seed);
+    //std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
+  }
+
+}
 void MuonNtuples::fillHltTrack(const edm::Handle<reco::TrackCollection>  & trackm ,
 			       const edm::Event                          & tevent ,
 			       TrackCollectionType type)
