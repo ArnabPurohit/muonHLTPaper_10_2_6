@@ -32,7 +32,8 @@ class SeedCand {
  public:
   std::string layerId;
   Int_t layerNum;
-  std::string seedType;
+  Int_t l2_idx;
+  Int_t hitBased;
   Float_t pt;
   Float_t eta;
   Float_t phi;

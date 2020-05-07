@@ -557,10 +557,6 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
     edm::Handle<std::vector<SeedCandidate>> collseed;
     if(event.getByToken(theSeedLabel, collseed)){
       fillSeeds(collseed, event);
-      //   std::cout <<  "Number of seeds = " << (*collseed).size() << std::endl;
-      //for (unsigned int j(0); j<(*collseed).size(); ++j){
-      //	std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
-      // }
     }
 
     // SimTracks
@@ -710,12 +706,13 @@ void MuonNtuples::fillSeeds(const edm::Handle<std::vector<SeedCandidate>>  & col
     SeedCand Seed;
     Seed.layerId   = (*collseed)[j].layerId;
     Seed.layerNum  = (*collseed)[j].layerNum;
-    Seed.seedType  = (*collseed)[j].seedType;
+    Seed.hitBased  = (*collseed)[j].hitBased;
     Seed.pt        = (*collseed)[j].pt;
     Seed.eta       = (*collseed)[j].eta;
     Seed.phi       = (*collseed)[j].phi;
+    Seed.l2_idx    = (*collseed)[j].l2_idx;
     event_.seeds.push_back(Seed);
-    //std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" "<< (*collseed)[j].seedType<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << std::endl;
+    std::cout << "Layer "<< (*collseed)[j].layerId << " #" << (*collseed)[j].layerNum <<" type(0:hitless,1:hitbased) "<< (*collseed)[j].hitBased<<":  l2_pt = " << (*collseed)[j].pt <<"  l2_eta = " << (*collseed)[j].eta << "  l2_phi = " << (*collseed)[j].phi << "  l2_idx = " << (*collseed)[j].l2_idx << std::endl;
   }
 
 }
@@ -966,6 +963,7 @@ void MuonNtuples::beginEvent()
   event_.genParticles.clear();
 
 //*******************INCLUDED*******************//
+  event_.seeds.clear();
   event_.hltTrackOI.clear();
   event_.hltTrackIOL1.clear();
   event_.hltTrackIOL2.clear();
