@@ -549,14 +549,19 @@ void MuonNtuples::analyze (const edm::Event &event, const edm::EventSetup &event
     edm::Handle<std::vector<Trajectory>> trajOI;
     if(event.getByToken(theTrajOIToken_, trajOI)){
       for(std::vector<Trajectory>::const_iterator t=trajOI->begin(); t!=trajOI->end(); t++){
-	std::cout <<"Found hits: "<< t->foundHits() << std::endl;
+	//	std::cout <<"Found hits: "<< t->foundHits() << std::endl;
       }
     }
+
+    // Handle the online muon collection and fill L2 muons //the l2muosn branch
+    edm::Handle<reco::RecoChargedCandidateCollection> l2cands;
+    if (event.getByToken(l2candToken_, l2cands))
+      fillHltMuons(l2cands, event, HLTCollectionType::iL2muons);
 
     // Seeds from TSG for OI
     edm::Handle<std::vector<SeedCandidate>> collseed;
     if(event.getByToken(theSeedLabel, collseed)){
-      fillSeeds(collseed, event);
+	fillSeeds(collseed, event);
     }
 
     // SimTracks
